@@ -1,4 +1,3 @@
-const key=config.API_KEY;
 const body = document.querySelector('body');
 const filterBtn = document.querySelector('.sidebar__filer');
 const sideBarOptions = document.querySelector('.sidebar__options');
@@ -119,7 +118,7 @@ class App {
 
 		this.#map = L.map('map').setView(this.#cords, this.#mapZoomLevel);
 		L.tileLayer(
-			`https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png?api_key=${key}`,
+			`https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png?api_key=71cd2d43-0a48-4641-abbc-cc4993c56965`,
 			{
 				maxZoom: 20,
 				attribution:
