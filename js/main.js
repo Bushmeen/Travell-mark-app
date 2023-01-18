@@ -118,7 +118,7 @@ class App {
 
 		this.#map = L.map('map').setView(this.#cords, this.#mapZoomLevel);
 		L.tileLayer(
-			'https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png',
+			'https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png?api_key=OzDGhSRPAKHlrF3ztZ1xOsI2QbMyXe68',
 			{
 				maxZoom: 20,
 				attribution:
