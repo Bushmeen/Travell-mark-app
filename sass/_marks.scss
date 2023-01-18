@@ -1,0 +1,38 @@
+.mark {
+	opacity: 0;
+	padding: 0.8em;
+	width: 100%;
+	margin-top: 15px;
+	min-height: 100px;
+	border-radius: 20px 0 20px 0;
+	border: 2px solid #13976d;
+	color: white;
+	box-shadow: inset -5px -3px 16px 0px black;
+	transform: translateY(-100%);
+	transition: opacity 0.4s, transform 0.4s;
+	&--remove {
+		transform: translateY(0);
+		opacity: 1;
+	}
+	&__heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+	}
+	&__left {
+		display: flex;
+		align-items: center;
+	}
+	&__title {
+		margin-left: 10px;
+		font-size: 1.7rem;
+	}
+	&__body {
+		margin-top: 10px;
+		font-size: 1.4rem;
+	}
+	&__curr-temp {
+		margin-top: 5px;
+	}
+}

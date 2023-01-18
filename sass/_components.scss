@@ -1,0 +1,71 @@
+.btn {
+	background: none;
+	border: 1px solid white;
+	padding: 0.4em 0.8em;
+	border-radius: 0 8px 0 8px;
+	cursor: pointer;
+	color: white;
+	&--icon {
+		padding: 0.4em;
+		border: none;
+	}
+}
+.icon {
+	font-size: 1.6rem;
+	background-clip: text;
+	color: transparent;
+	&--margin {
+		margin-right: 6px;
+	}
+
+	&--notFav,
+	&--thrash {
+		background-image: linear-gradient(90deg, white);
+	}
+	&--fav {
+		background-image: linear-gradient(90deg, #e6e60f, #e15a11, #e11111);
+	}
+	&--one {
+		background-image: linear-gradient(90deg, #13976d, #1cc775);
+	}
+	&--two {
+		background-image: linear-gradient(90deg, #1cc775, #bfed19);
+	}
+	&--three {
+		background-image: linear-gradient(90deg, #bfed19, #ede619);
+	}
+	&--four {
+		background-image: linear-gradient(270deg, #ede619);
+	}
+}
+.color-text {
+	margin-left: 10px;
+	background-image: linear-gradient(270deg, #13976d, #28a669, #84a747, #ede619);
+	background-clip: text;
+	color: transparent;
+}
+
+.leaflet-popup .leaflet-popup-content-wrapper {
+	background-color: rgb(38, 38, 38);
+	border-radius: 10px 0 10px 0;
+	padding: 0.2em 0.4em;
+	color: white;
+}
+
+.leaflet-popup .leaflet-popup-content {
+	font-size: 1.5rem;
+	margin-left: 7px;
+}
+
+.leaflet-popup .leaflet-popup-tip {
+	background-color: rgb(38, 38, 38);
+}
+
+.visited-popup .leaflet-popup-content-wrapper {
+	color: #1cc775;
+	border-left: 10px solid #1cc775;
+}
+.planned-popup .leaflet-popup-content-wrapper {
+	color: #ede619;
+	border-left: 10px solid #ede619;
+}

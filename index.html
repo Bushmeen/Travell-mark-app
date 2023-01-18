@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map app</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+
+    <script defer src="https://kit.fontawesome.com/cf11a82493.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <script defer src="js/main.js"></script>
+</head>
+
+<body>
+    <main class="main">
+        <div class="sidebar">
+            <div class="sidebar__header">
+                <img class="sidebar__logo" src="img/destination.png" alt="logo">
+                <h1 class="sidebar__title color-text">Travell mark</h1>
+            </div>
+            <div class="sidebar__btns">
+                <button class="btn sidebar__filer">filter</button>
+                <div>
+                    <button class="btn sidebar__move">reset location</button>
+                    <button class="btn sidebar__delete-all">delete all</button>
+
+                </div>
+            </div>
+            <div class="sidebar__options">
+                <button class="btn btn--icon sidebar__all-btn"><i
+                        class="fa-solid fa-earth-americas icon icon--one"></i></button>
+                <button class="btn btn--icon sidebar__planned-btn"><i
+                        class="fa-solid fa-plane-departure icon icon--two"></i></button>
+                <button class="btn btn--icon sidebar__visited-btn"><i
+                        class="fa-solid fa-location-dot icon icon--three"></i></button>
+                <button class="btn btn--icon sidebar__fav-btn"><i
+                        class="fa-solid fa-heart icon icon--four"></i></button>
+            </div>
+            <div class="sidebar__main">
+
+
+
+            </div>
+            <div class="sidebar__footer">
+                <a href="https://www.flaticon.com/free-icons/travelling" title="travelling icons">Travelling icons
+                    created by Mehwish - Flaticon</a>
+            </div>
+        </div>
+
+        <div class="map" id="map"></div>
+        <div class="popup">
+            <h1 class="popup__location color-text"></h1>
+            <div class="popup__top">
+                <form>
+                    <select class="popup__place">
+                        <option value="0" selected disabled>Choose</option>
+                        <option value="1">visited</option>
+                        <option value="2">planned</option>
+                    </select>
+                    <span>on</span>
+                    <input class="popup__callendar" type="date" name="date_picker" required>
+                </form>
+            </div>
+
+            <div class="popup__bottom">
+                <button class="btn btn--icon popup__btn-save">save</button>
+                <button class="btn btn--icon popup__btn-cancel">cancel</button>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+
+</html>
