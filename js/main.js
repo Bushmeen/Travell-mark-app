@@ -1,4 +1,5 @@
 const body = document.querySelector('body');
+const sideBarBox = document.querySelector('.sidebar');
 const filterBtn = document.querySelector('.sidebar__filer');
 const sideBarOptions = document.querySelector('.sidebar__options');
 const mapPopup = document.querySelector('.popup');
@@ -10,7 +11,6 @@ const select = document.querySelector('.popup__place');
 const sideBar = document.querySelector('.sidebar__main');
 const resetLocationBtn = document.querySelector('.sidebar__move');
 class Mark {
-	#id;
 	constructor(type, date, temp, location, coords) {
 		this.type = type;
 		this.date = date;
@@ -18,6 +18,7 @@ class Mark {
 		this.location = location;
 		this.coords = coords;
 		this.fav = false;
+
 		this._createID();
 	}
 	addTo() {
@@ -27,7 +28,7 @@ class Mark {
 				: `<i class="fa-solid fa-plane-departure icon icon--two"></i>`;
 		let newBox = document.createElement('div');
 		newBox.classList.add('mark');
-		newBox.dataset.id = this.#id;
+		newBox.dataset.id = this.id;
 
 		newBox.innerHTML = `<div class="mark__heading">
 		<div class="mark__left">
@@ -59,7 +60,7 @@ class Mark {
 				.toString(16)
 				.substring(1);
 		};
-		this.#id =
+		this.id =
 			s4() +
 			s4() +
 			'-' +
@@ -94,6 +95,7 @@ class App {
 		popupCloseBtn.addEventListener('click', this._closePopup);
 		filterBtn.addEventListener('click', this._showFilters);
 		resetLocationBtn.addEventListener('click', this._resetLocation.bind(this));
+		sideBarBox.addEventListener('click', this._checkMarkClik.bind(this));
 	}
 
 	_getUserPosition() {
@@ -263,7 +265,21 @@ class App {
 		);
 		newMark.addTo();
 		this.#marks.push(newMark);
-		console.log(newMark);
+	}
+	_checkMarkClik(e) {
+		if (e.target.classList.contains('mark__delete')) {
+			this._deleteMark(e.target);
+		}
+	}
+	_deleteMark(curr) {
+		const parent = curr.closest('.mark');
+		const parentID = parent.dataset.id;
+		this.#marks.forEach((mark, i) => {
+			if (parentID === mark.id) {
+				this.#marks.splice(i, 1);
+				parent.remove();
+			}
+		});
 	}
 }
 
