@@ -11,14 +11,13 @@ const select = document.querySelector('.popup__place');
 const sideBar = document.querySelector('.sidebar__main');
 const resetLocationBtn = document.querySelector('.sidebar__move');
 class Mark {
-	constructor(type, date, temp, location, coords, marker) {
+	constructor(type, date, temp, location, coords) {
 		this.type = type;
 		this.date = date;
 		this.temp = temp;
 		this.location = location;
 		this.coords = coords;
 		this.fav = false;
-		this.marker = marker;
 
 		this._createID();
 	}
@@ -87,9 +86,11 @@ class App {
 	#currTemp;
 	#mapZoomLevel = 11;
 	#marks = [];
+	#layers = [];
 	constructor() {
 		this._getUserPosition();
 		this._getDate();
+		this._getLocalStorage();
 
 		body.addEventListener('dblclick', this._openPopup.bind(this));
 		popupSaveBtn.addEventListener('click', this._save.bind(this));
@@ -132,6 +133,10 @@ class App {
 		this.#map.doubleClickZoom.disable();
 
 		this.#map.on('dblclick', this._getClikedLocation.bind(this));
+
+		this.#marks.forEach((mark) => {
+			this._displayOnMap(mark);
+		});
 	}
 	_resetLocation() {
 		this.#map.setView(this.#cords, this.#mapZoomLevel, {
@@ -254,25 +259,30 @@ class App {
 				.setPopupContent(`${typeIcon} ${this.#location?.name}`)
 				.openPopup();
 
-			this._showMark(userSelect, userDate, marker);
+			this.#layers.push(marker);
+
+			this._showMark(userSelect, userDate);
 		}
 	}
-	_showMark(type, date, marker) {
+	_showMark(type, date) {
 		const clikedCoords = [this.#currLat, this.#currLng];
 		const newMark = new Mark(
 			type,
 			date,
 			this.#currTemp,
 			this.#location.name,
-			clikedCoords,
-			marker
+			clikedCoords
 		);
 		newMark.addTo();
 		this.#marks.push(newMark);
+		this._setLocalStorage();
 	}
 	_checkMarkClik(e) {
 		if (e.target.classList.contains('mark__delete')) {
 			this._deleteMark(e.target);
+		}
+		if (e.target.classList.contains('mark__fav')) {
+			this._manageFav(e.target);
 		}
 		if (
 			e.target.classList.contains('mark') ||
@@ -282,6 +292,26 @@ class App {
 		}
 	}
 
+	_manageFav(curr) {
+		const currIcon = curr.children[0];
+		const parent = curr.closest('.mark');
+		const parentID = parent.dataset.id;
+
+		this.#marks.forEach((mark) => {
+			if (parentID === mark.id) {
+				if (mark.fav) {
+					mark.fav = false;
+					currIcon.classList.add('icon--notFav');
+					currIcon.classList.remove('icon--fav');
+				} else {
+					mark.fav = true;
+					currIcon.classList.add('icon--fav');
+					currIcon.classList.remove('icon--notFav');
+				}
+			}
+		});
+		console.log(this.#marks);
+	}
 	_deleteMark(curr) {
 		const parent = curr.closest('.mark');
 		const parentID = parent.dataset.id;
@@ -292,10 +322,12 @@ class App {
 				parent.remove();
 
 				setTimeout(() => {
-					this.#map.removeLayer(mark.marker);
+					this.#map.removeLayer(this.#layers[i]);
+					this.#layers.splice(i, 1);
 				}, 1000);
 			}
 		});
+		this._setLocalStorage();
 	}
 	_movement(coords) {
 		this.#map.setView(coords, this.#mapZoomLevel, {
@@ -313,6 +345,56 @@ class App {
 				this._movement(mark.coords);
 			}
 		});
+	}
+	_setLocalStorage() {
+		console.log(this.#marks);
+
+		localStorage.setItem('marks', JSON.stringify(this.#marks));
+	}
+	_getLocalStorage() {
+		const data = JSON.parse(localStorage.getItem('marks'));
+		if (!data) return;
+
+		this.#marks = data;
+		this.#marks.forEach((mark) => {
+			this._displayOnSideBar(mark);
+		});
+	}
+	_displayOnSideBar(mark) {
+		console.log(mark);
+		const newMark = new Mark(
+			mark.type,
+			mark.date,
+			mark.temp,
+			mark.location,
+			mark.coords
+		);
+		newMark.addTo();
+		this.#marks.push(newMark);
+	}
+	_displayOnMap(mark) {
+		const typeIcon =
+			mark.type === 'visited'
+				? `<i class="fa-solid fa-location-dot icon icon--three icon--margin"></i>`
+				: `<i class="fa-solid fa-plane-departure icon icon--two icon--margin"></i>`;
+
+		const marker = L.marker(mark.coords, {
+			iconUrl: 'leaf-green.png',
+			shadowUrl: 'leaf-shadow.png',
+		})
+			.addTo(this.#map)
+			.bindPopup(
+				L.popup({
+					maxWidth: 250,
+					minWidth: 100,
+					autoClose: false,
+					closeOnClick: false,
+					className: `${mark.type}-popup`,
+				})
+			)
+			.setPopupContent(`${typeIcon} ${mark.location}`)
+			.openPopup();
+		this.#layers.push(marker);
 	}
 }
 
