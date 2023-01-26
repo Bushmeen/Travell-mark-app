@@ -15,24 +15,29 @@
 		opacity: 1;
 	}
 	&__heading {
+		
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		width: 100%;
 	}
 	&__left {
+		pointer-events: none;
 		display: flex;
 		align-items: center;
 	}
 	&__title {
+		pointer-events: none;
 		margin-left: 10px;
 		font-size: 1.7rem;
 	}
 	&__body {
+		pointer-events: none;
 		margin-top: 10px;
 		font-size: 1.4rem;
 	}
 	&__curr-temp {
+		pointer-events: none;
 		margin-top: 5px;
 	}
 }

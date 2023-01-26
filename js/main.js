@@ -11,13 +11,14 @@ const select = document.querySelector('.popup__place');
 const sideBar = document.querySelector('.sidebar__main');
 const resetLocationBtn = document.querySelector('.sidebar__move');
 class Mark {
-	constructor(type, date, temp, location, coords) {
+	constructor(type, date, temp, location, coords, marker) {
 		this.type = type;
 		this.date = date;
 		this.temp = temp;
 		this.location = location;
 		this.coords = coords;
 		this.fav = false;
+		this.marker = marker;
 
 		this._createID();
 	}
@@ -236,7 +237,7 @@ class App {
 					? `<i class="fa-solid fa-location-dot icon icon--three icon--margin"></i>`
 					: `<i class="fa-solid fa-plane-departure icon icon--two icon--margin"></i>`;
 
-			L.marker(coords, {
+			const marker = L.marker(coords, {
 				iconUrl: 'leaf-green.png',
 				shadowUrl: 'leaf-shadow.png',
 			})
@@ -252,16 +253,19 @@ class App {
 				)
 				.setPopupContent(`${typeIcon} ${this.#location?.name}`)
 				.openPopup();
-			this._showMark(userSelect, userDate);
+
+			this._showMark(userSelect, userDate, marker);
 		}
 	}
-	_showMark(type, date) {
+	_showMark(type, date, marker) {
+		const clikedCoords = [this.#currLat, this.#currLng];
 		const newMark = new Mark(
 			type,
 			date,
 			this.#currTemp,
 			this.#location.name,
-			this.#cords
+			clikedCoords,
+			marker
 		);
 		newMark.addTo();
 		this.#marks.push(newMark);
@@ -270,14 +274,43 @@ class App {
 		if (e.target.classList.contains('mark__delete')) {
 			this._deleteMark(e.target);
 		}
+		if (
+			e.target.classList.contains('mark') ||
+			e.target.classList.contains('mark__heading')
+		) {
+			this._moveTo(e.target);
+		}
 	}
+
 	_deleteMark(curr) {
 		const parent = curr.closest('.mark');
 		const parentID = parent.dataset.id;
 		this.#marks.forEach((mark, i) => {
 			if (parentID === mark.id) {
+				this._movement(mark.coords);
 				this.#marks.splice(i, 1);
 				parent.remove();
+
+				setTimeout(() => {
+					this.#map.removeLayer(mark.marker);
+				}, 1000);
+			}
+		});
+	}
+	_movement(coords) {
+		this.#map.setView(coords, this.#mapZoomLevel, {
+			animate: true,
+			pan: {
+				duration: 1,
+			},
+		});
+	}
+	_moveTo(curr) {
+		const parent = curr.closest('.mark');
+		const parentID = parent.dataset.id;
+		this.#marks.forEach((mark) => {
+			if (parentID === mark.id) {
+				this._movement(mark.coords);
 			}
 		});
 	}

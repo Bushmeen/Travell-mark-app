@@ -380,6 +380,7 @@ body {
   width: 100%;
 }
 .mark__left {
+  pointer-events: none;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -388,13 +389,16 @@ body {
           align-items: center;
 }
 .mark__title {
+  pointer-events: none;
   margin-left: 10px;
   font-size: 1.7rem;
 }
 .mark__body {
+  pointer-events: none;
   margin-top: 10px;
   font-size: 1.4rem;
 }
 .mark__curr-temp {
+  pointer-events: none;
   margin-top: 5px;
 }/*# sourceMappingURL=main.css.map */
