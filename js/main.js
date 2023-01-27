@@ -135,7 +135,6 @@ class App {
 
 		this.#map.on('dblclick', this._getClikedLocation.bind(this));
 
-		console.log(this.#marks);
 		this.#marks.forEach((mark) => {
 			this._displayOnMap(mark);
 		});
@@ -187,7 +186,7 @@ class App {
 		}
 		popupCallendar.value = callendarFormat;
 	}
-	_checkWeather(x, y) {
+	_checkWeather(x, y, id = 0) {
 		const options = {
 			method: 'GET',
 			headers: {
@@ -204,6 +203,19 @@ class App {
 			.then((response) => {
 				this.#currTemp = response.current?.temp_c;
 				this.#location = response.location;
+
+				//  update off temp for existing marks
+				if (id != 0) {
+					this.#marks.forEach((mark) => {
+						if (mark.id === id) {
+							const el = document
+								.querySelector(`[data-id="${mark.id}"]`)
+								.querySelector('.mark__curr-temp');
+							mark.temp = this.#currTemp;
+							el.textContent = `currently temperature: ${mark.temp}°C`;
+						}
+					});
+				}
 			})
 			.then(
 				() =>
@@ -226,45 +238,41 @@ class App {
 			const selected = select.options[select.selectedIndex].text;
 			const userDate = popupCallendar.value;
 			mapPopup.style.display = 'none';
-			this._renderMark(
-				[this.#currLat, this.#currLng],
-				selected,
-				userDate,
-				selected
-			);
+			this._renderMark([this.#currLat, this.#currLng], selected, userDate);
 			this._closePopup();
 		}
 	}
-	_renderMark(coords, userSelect, userDate, selected) {
+	_renderMark(coords, userSelect, userDate) {
 		if (typeof this.#location == 'undefined') {
 			alert('Could not add this location');
 		} else {
-			const typeIcon =
-				selected === 'visited'
-					? `<i class="fa-solid fa-location-dot icon icon--three icon--margin"></i>`
-					: `<i class="fa-solid fa-plane-departure icon icon--two icon--margin"></i>`;
-
-			const marker = L.marker(coords, {
-				iconUrl: 'leaf-green.png',
-				shadowUrl: 'leaf-shadow.png',
-			})
-				.addTo(this.#map)
-				.bindPopup(
-					L.popup({
-						maxWidth: 250,
-						minWidth: 100,
-						autoClose: false,
-						closeOnClick: false,
-						className: `${selected}-popup`,
-					})
-				)
-				.setPopupContent(`${typeIcon} ${this.#location?.name}`)
-				.openPopup();
-
-			this.#layers.push(marker);
-
+			this._displayMark(coords, userSelect);
 			this._showMark(userSelect, userDate);
 		}
+	}
+	_displayMark(coords, userSelect, savedLocation = null) {
+		const typeIcon =
+			userSelect === 'visited'
+				? `<i class="fa-solid fa-location-dot icon icon--three icon--margin"></i>`
+				: `<i class="fa-solid fa-plane-departure icon icon--two icon--margin"></i>`;
+
+		const marker = L.marker(coords, {
+			iconUrl: 'leaf-green.png',
+			shadowUrl: 'leaf-shadow.png',
+		})
+			.addTo(this.#map)
+			.bindPopup(
+				L.popup({
+					minWidth: 100,
+					autoClose: false,
+					closeOnClick: false,
+					className: `${userSelect}-popup`,
+				})
+			)
+			.setPopupContent(`${typeIcon} ${this.#location?.name ?? savedLocation}`)
+			.openPopup();
+
+		this.#layers.push(marker);
 	}
 	_showMark(type, date) {
 		const clikedCoords = [this.#currLat, this.#currLng];
@@ -378,29 +386,8 @@ class App {
 		});
 	}
 	_displayOnMap(mark) {
-		const typeIcon =
-			mark.type === 'visited'
-				? `<i class="fa-solid fa-location-dot icon icon--three icon--margin"></i>`
-				: `<i class="fa-solid fa-plane-departure icon icon--two icon--margin"></i>`;
-
-		const marker = L.marker(mark.coords, {
-			iconUrl: 'leaf-green.png',
-			shadowUrl: 'leaf-shadow.png',
-		})
-			.addTo(this.#map)
-			.bindPopup(
-				L.popup({
-					maxWidth: 250,
-					minWidth: 100,
-					autoClose: false,
-					closeOnClick: false,
-					className: `${mark.type}-popup`,
-				})
-			)
-			.setPopupContent(`${typeIcon} ${mark.location}`)
-			.openPopup();
-		this.#layers.push(marker);
-		console.log(this.#layers);
+		this._checkWeather(...mark.coords, mark.id);
+		this._displayMark(mark.coords, mark.type, mark.location);
 	}
 }
 
