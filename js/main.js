@@ -10,14 +10,16 @@ const popupCloseBtn = document.querySelector('.popup__btn-cancel');
 const select = document.querySelector('.popup__place');
 const sideBar = document.querySelector('.sidebar__main');
 const resetLocationBtn = document.querySelector('.sidebar__move');
+const deleteAllMarksBtn = document.querySelector('.sidebar__delete-all');
+
 class Mark {
-	constructor(type, date, temp, location, coords) {
+	constructor(type, date, temp, location, coords, fav = false) {
 		this.type = type;
 		this.date = date;
 		this.temp = temp;
 		this.location = location;
 		this.coords = coords;
-		this.fav = false;
+		this.fav = fav;
 
 		this._createID();
 	}
@@ -99,6 +101,11 @@ class App {
 		filterBtn.addEventListener('click', this._showFilters);
 		resetLocationBtn.addEventListener('click', this._resetLocation.bind(this));
 		sideBarBox.addEventListener('click', this._checkMarkClik.bind(this));
+		sideBarOptions.addEventListener('click', this._hanndleClicks.bind(this));
+		deleteAllMarksBtn.addEventListener(
+			'click',
+			this._deleteAllMarks.bind(this)
+		);
 	}
 
 	_getUserPosition() {
@@ -320,6 +327,8 @@ class App {
 				}
 			}
 		});
+
+		this._setLocalStorage();
 	}
 	_deleteMark(curr) {
 		const parent = curr.closest('.mark');
@@ -331,7 +340,6 @@ class App {
 				parent.remove();
 
 				setTimeout(() => {
-					console.log(this.#layers[i]);
 					this.#map.removeLayer(this.#layers[i]);
 					this.#layers.splice(i, 1);
 				}, 1000);
@@ -362,12 +370,22 @@ class App {
 	_getLocalStorage() {
 		const data = JSON.parse(localStorage.getItem('marks'));
 		if (!data) return;
-
 		this.#marks = data;
 		this.#marks.forEach((mark, i) => {
 			this._displayOnSideBar(mark);
 		});
 		this._addToMarks();
+		this._restoreFav();
+	}
+	_deleteAllMarks() {
+		if (this.#marks.length > 0) {
+			if (confirm('Are you sure? Your data will be lost')) {
+				localStorage.removeItem('marks');
+				location.reload();
+			}
+		} else {
+			alert('Nothing to delete');
+		}
 	}
 	_displayOnSideBar(mark) {
 		const newMark = new Mark(
@@ -375,10 +393,30 @@ class App {
 			mark.date,
 			mark.temp,
 			mark.location,
-			mark.coords
+			mark.coords,
+			mark.fav
 		);
 		newMark.addTo();
 		this.#temp.push(newMark);
+	}
+	_restoreFav() {
+		const marks = this.#marks;
+
+		const els = document.querySelectorAll('.mark');
+
+		els.forEach((el, i) => {
+			if (marks[i].id === el.dataset.id) {
+				const isFav = marks[i].fav;
+				const btn = el.children[0].children[1].children[0].children[0];
+				if (isFav) {
+					btn.classList.add('icon--fav');
+					btn.classList.remove('icon--notFav');
+				} else {
+					btn.classList.add('icon--notFav');
+					btn.classList.remove('icon--fav');
+				}
+			}
+		});
 	}
 	_addToMarks() {
 		this.#marks.forEach((_, i) => {
@@ -388,6 +426,49 @@ class App {
 	_displayOnMap(mark) {
 		this._checkWeather(...mark.coords, mark.id);
 		this._displayMark(mark.coords, mark.type, mark.location);
+	}
+	_hanndleClicks(e) {
+		const target = e.target;
+
+		if (e.target.classList.contains('sidebar__all-btn')) {
+			this._showAll();
+		}
+		if (e.target.classList.contains('sidebar__planned-btn')) {
+			this._manageFilter('visited');
+		}
+		if (e.target.classList.contains('sidebar__visited-btn')) {
+			this._manageFilter('planned');
+		}
+		if (e.target.classList.contains('sidebar__fav-btn')) {
+			this._filterFav();
+		}
+	}
+	_showAll() {
+		const all = document.querySelectorAll('.mark');
+		all.forEach((el) => {
+			el.style.display = 'block';
+		});
+	}
+	_manageFilter(t) {
+		this._showAll();
+		const all = document.querySelectorAll('.mark');
+		this.#marks.forEach((mark, i) => {
+			if (mark.type === t) {
+				if (mark.id === all[i].dataset.id) {
+					all[i].style.display = 'none';
+				}
+			}
+		});
+	}
+	_filterFav() {
+		this._showAll();
+
+		const all = document.querySelectorAll('.mark');
+		this.#marks.forEach((mark, i) => {
+			if (!mark.fav) {
+				all[i].style.display = 'none';
+			}
+		});
 	}
 }
 
