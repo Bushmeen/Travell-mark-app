@@ -426,6 +426,7 @@ class App {
 	_displayOnMap(mark) {
 		this._checkWeather(...mark.coords, mark.id);
 		this._displayMark(mark.coords, mark.type, mark.location);
+		this._resetLocation();
 	}
 	_hanndleClicks(e) {
 		const target = e.target;
