@@ -87,6 +87,7 @@ class App {
 	#mapZoomLevel = 11;
 	#marks = [];
 	#layers = [];
+	#temp = [];
 	constructor() {
 		this._getUserPosition();
 		this._getDate();
@@ -134,6 +135,7 @@ class App {
 
 		this.#map.on('dblclick', this._getClikedLocation.bind(this));
 
+		console.log(this.#marks);
 		this.#marks.forEach((mark) => {
 			this._displayOnMap(mark);
 		});
@@ -310,7 +312,6 @@ class App {
 				}
 			}
 		});
-		console.log(this.#marks);
 	}
 	_deleteMark(curr) {
 		const parent = curr.closest('.mark');
@@ -322,6 +323,7 @@ class App {
 				parent.remove();
 
 				setTimeout(() => {
+					console.log(this.#layers[i]);
 					this.#map.removeLayer(this.#layers[i]);
 					this.#layers.splice(i, 1);
 				}, 1000);
@@ -347,8 +349,6 @@ class App {
 		});
 	}
 	_setLocalStorage() {
-		console.log(this.#marks);
-
 		localStorage.setItem('marks', JSON.stringify(this.#marks));
 	}
 	_getLocalStorage() {
@@ -356,12 +356,12 @@ class App {
 		if (!data) return;
 
 		this.#marks = data;
-		this.#marks.forEach((mark) => {
+		this.#marks.forEach((mark, i) => {
 			this._displayOnSideBar(mark);
 		});
+		this._addToMarks();
 	}
 	_displayOnSideBar(mark) {
-		console.log(mark);
 		const newMark = new Mark(
 			mark.type,
 			mark.date,
@@ -370,7 +370,12 @@ class App {
 			mark.coords
 		);
 		newMark.addTo();
-		this.#marks.push(newMark);
+		this.#temp.push(newMark);
+	}
+	_addToMarks() {
+		this.#marks.forEach((_, i) => {
+			this.#marks[i] = this.#temp[i];
+		});
 	}
 	_displayOnMap(mark) {
 		const typeIcon =
@@ -395,6 +400,7 @@ class App {
 			.setPopupContent(`${typeIcon} ${mark.location}`)
 			.openPopup();
 		this.#layers.push(marker);
+		console.log(this.#layers);
 	}
 }
 
