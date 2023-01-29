@@ -209,7 +209,6 @@ class App {
 			.then((response) => response.json())
 			.then((response) => {
 				this.#currTemp = response.current?.temp_c;
-				this.#location = response.location;
 
 				//  update off temp for existing marks
 				if (id != 0) {
@@ -224,12 +223,21 @@ class App {
 					});
 				}
 			})
-			.then(
-				() =>
-					(popupLocation.textContent =
-						this.#location?.name ?? 'Unknow location')
-			)
 			.catch((err) => console.error(err));
+	}
+	_checkLocation(lat, lng) {
+		const link = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`;
+
+		fetch(link)
+			.then((res) => {
+				if (!res.ok) throw new Error('Unknow location');
+				return res.json();
+			})
+			.then((data) => (this.#location = data.city))
+			.then(
+				() => (popupLocation.textContent = this.#location ?? 'Unknow location')
+			)
+			.catch((err) => console.log(err.message));
 	}
 	_getClikedLocation(mapE) {
 		this.#mapEvent = mapE;
@@ -237,6 +245,7 @@ class App {
 		this.#currLat = lat;
 		this.#currLng = lng;
 		this._checkWeather(lat, lng);
+		this._checkLocation(lat, lng);
 	}
 	_save() {
 		if (Number(select.value) === 0) {
