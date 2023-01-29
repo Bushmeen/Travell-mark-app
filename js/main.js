@@ -206,7 +206,10 @@ class App {
 			`https://weatherapi-com.p.rapidapi.com/forecast.json?q=${x}%20${y}`,
 			options
 		)
-			.then((response) => response.json())
+			.then((response) => {
+				if (!response.ok) throw new Error('No data');
+				return response.json();
+			})
 			.then((response) => {
 				this.#currTemp = response.current?.temp_c;
 
@@ -223,17 +226,24 @@ class App {
 					});
 				}
 			})
-			.catch((err) => console.error(err));
+			.catch((err) => alert(err));
 	}
 	_checkLocation(lat, lng) {
 		const link = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`;
 
 		fetch(link)
 			.then((res) => {
-				if (!res.ok) throw new Error('Unknow location');
+				if (!res.ok) throw new Error('Could not get data');
 				return res.json();
 			})
-			.then((data) => (this.#location = data.city))
+			.then((data) => {
+				if (data.city === '') {
+					popupLocation.textContent = 'Unknow Location';
+					this.#location = 'Unknow location';
+				} else {
+					return (this.#location = data.city);
+				}
+			})
 			.then(
 				() => (popupLocation.textContent = this.#location ?? 'Unknow location')
 			)
@@ -248,14 +258,20 @@ class App {
 		this._checkLocation(lat, lng);
 	}
 	_save() {
-		if (Number(select.value) === 0) {
-			alert('Choose option');
-		} else {
-			const selected = select.options[select.selectedIndex].text;
-			const userDate = popupCallendar.value;
-			mapPopup.style.display = 'none';
-			this._renderMark([this.#currLat, this.#currLng], selected, userDate);
+		if (this.#location === 'Unknow location') {
+			alert('Could not add this location');
 			this._closePopup();
+			return;
+		} else {
+			if (Number(select.value) === 0) {
+				alert('Choose option');
+			} else {
+				const selected = select.options[select.selectedIndex].text;
+				const userDate = popupCallendar.value;
+				mapPopup.style.display = 'none';
+				this._renderMark([this.#currLat, this.#currLng], selected, userDate);
+				this._closePopup();
+			}
 		}
 	}
 	_renderMark(coords, userSelect, userDate) {
@@ -285,7 +301,7 @@ class App {
 					className: `${userSelect}-popup`,
 				})
 			)
-			.setPopupContent(`${typeIcon} ${this.#location?.name ?? savedLocation}`)
+			.setPopupContent(`${typeIcon} ${this.#location ?? savedLocation}`)
 			.openPopup();
 
 		this.#layers.push(marker);
@@ -296,7 +312,7 @@ class App {
 			type,
 			date,
 			this.#currTemp,
-			this.#location.name,
+			this.#location,
 			clikedCoords
 		);
 		newMark.addTo();
