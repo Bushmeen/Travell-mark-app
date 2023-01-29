@@ -228,8 +228,9 @@ class App {
 			})
 			.catch((err) => alert(err));
 	}
+
 	_checkLocation(lat, lng) {
-		const link = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`;
+		const link = `https://api.bigdatacloud.net/data/reverse-geocode?latitude=${lat}&longitude=${lng}&localityLanguage=en&key=bdc_7a350230bb64470586d65a415b19d3c5`;
 
 		fetch(link)
 			.then((res) => {
