@@ -49,7 +49,8 @@ class Mark {
 	</div>
 	<div class="mark__body">
 		<p class="mark__date">${this.type}: ${this.date}</p>
-		<p class="mark__curr-temp">currently temperature: ${this.temp}°C</p>
+		<p class="mark__curr-temp">
+		current temperature: ${this.temp}°C</p>
 	</div>`;
 
 		sideBar.append(newBox);
