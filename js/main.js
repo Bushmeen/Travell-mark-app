@@ -7,6 +7,8 @@ const popupCallendar = document.querySelector('.popup__callendar');
 const popupLocation = document.querySelector('.popup__location');
 const popupSaveBtn = document.querySelector('.popup__btn-save');
 const popupCloseBtn = document.querySelector('.popup__btn-cancel');
+const modal = document.querySelector('.modal');
+const modalErrorText = document.querySelector('.modal__error');
 const select = document.querySelector('.popup__place');
 const sideBar = document.querySelector('.sidebar__main');
 const resetLocationBtn = document.querySelector('.sidebar__move');
@@ -98,6 +100,7 @@ class App {
 		body.addEventListener('dblclick', this._openPopup.bind(this));
 		popupSaveBtn.addEventListener('click', this._save.bind(this));
 		popupCloseBtn.addEventListener('click', this._closePopup);
+		modal.addEventListener('click', this.test.bind(this));
 		filterBtn.addEventListener('click', this._showFilters);
 		resetLocationBtn.addEventListener('click', this._resetLocation.bind(this));
 		sideBarBox.addEventListener('click', this._checkMarkClik.bind(this));
@@ -115,12 +118,12 @@ class App {
 				this._error
 			);
 		else {
-			alert('Your browser dosen;t support geolocation');
+			this._openModal(`Your browser dosen't support geolocation`);
 		}
 	}
 	_error() {
 		alert(
-			'Spmeting went wrong. Check if your browser is allowed to use your current location and try again'
+			'`Something went wrong. Check if your browser is allowed to use your current location and try again`'
 		);
 	}
 
@@ -170,6 +173,19 @@ class App {
 	_closePopup() {
 		mapPopup.style.display = 'none';
 		select.value = 0;
+	}
+	_openModal(err) {
+		console.log(err);
+		modalErrorText.textContent = err;
+		modal.style.display = 'flex';
+	}
+	_closeModal() {
+		modalErrorText.textContent = '';
+		modal.style.display = 'none';
+	}
+	test(e) {
+		if (e.target.classList.contains('modal__close')) this._closeModal();
+		if (e.target.classList.contains('modal')) this._closeModal();
 	}
 
 	_showFilters() {
@@ -226,7 +242,7 @@ class App {
 					});
 				}
 			})
-			.catch((err) => alert(err));
+			.catch((err) => this._openModal(err.message));
 	}
 
 	_checkLocation(lat, lng) {
@@ -248,7 +264,7 @@ class App {
 			.then(
 				() => (popupLocation.textContent = this.#location ?? 'Unknow location')
 			)
-			.catch((err) => console.log(err.message));
+			.catch((err) => this._openModal(err.message));
 	}
 	_getClikedLocation(mapE) {
 		this.#mapEvent = mapE;
@@ -260,12 +276,12 @@ class App {
 	}
 	_save() {
 		if (this.#location === 'Unknow location') {
-			alert('Could not add this location');
+			this._openModal('Could not add this location');
 			this._closePopup();
 			return;
 		} else {
 			if (Number(select.value) === 0) {
-				alert('Choose option');
+				this._openModal('You have to choose option eg. "visited"');
 			} else {
 				const selected = select.options[select.selectedIndex].text;
 				const userDate = popupCallendar.value;
@@ -277,7 +293,7 @@ class App {
 	}
 	_renderMark(coords, userSelect, userDate) {
 		if (typeof this.#location == 'undefined') {
-			alert('Could not add this location');
+			this._openModal('Could not add this location');
 		} else {
 			this._displayMark(coords, userSelect);
 			this._showMark(userSelect, userDate);
@@ -410,7 +426,7 @@ class App {
 				location.reload();
 			}
 		} else {
-			alert('Nothing to delete');
+			this._openModal(`Nothing to delete`);
 		}
 	}
 	_displayOnSideBar(mark) {
